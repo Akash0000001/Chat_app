@@ -16,7 +16,7 @@ async function onsubmit(e)
     }
     else{
         alert(res.data.message)
-        //window.location.href="/login.html"
+        window.location.href="/Login/login.html"
     }
     console.log(res)
     }

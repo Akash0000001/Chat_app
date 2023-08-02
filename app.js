@@ -9,7 +9,6 @@ app.use(cors())
 app.use(bodyparser.json({extended:false}))
 app.use("/user",userRoutes)
 app.use((req,res,next)=>{
-    console.log(req.url)
     res.sendFile(path.join(__dirname,`Public/${req.url}`))
 })
 sequelize.sync()
