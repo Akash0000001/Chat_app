@@ -18,7 +18,7 @@ exports.addUser=(req,res,next)=>{
 }
 else
 {
-    res.status(201).json({message:"User already exists",success:true})
+    res.status(201).json({message:"User already exists,please login",success:true})
 }
 }
 catch(err)
