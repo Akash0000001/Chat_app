@@ -31,7 +31,7 @@ catch(err)
 
 function generateaccesstoken(id,name)
 {
-    return jwt.sign({userId:id,name:name},"SGHP07899yuiichjkqicnms6789")
+    return jwt.sign({userId:id,name:name},process.env.JWT_SECRET_KEY)
 }
 exports.authorizeUser=async (req,res,next)=>{
     try{

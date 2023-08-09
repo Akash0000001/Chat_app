@@ -2,6 +2,7 @@ const express= require ("express")
 const bodyparser= require("body-parser")
 const path=require("path")
 const cors=require("cors")
+require("dotenv").config();
 const sequelize=require("./util/database")
 const userRoutes=require("./routes/user")
 const app= express();
