@@ -8,8 +8,11 @@ async function onsubmit(e)
 {
     e.preventDefault();
     try{
+        
         const res=await axios.post("http://localhost:3000/user/login",{email:email.value , password:password.value})
-        console.log(res)
+        localStorage.setItem("token",res.data.token)
+        alert(res.data.message)
+        window.location.href="/index.html"
     }
     catch(err)
     {
