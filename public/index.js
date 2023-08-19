@@ -19,8 +19,6 @@ async function onsubmit(e)
     const res=await axios.post("http://localhost:3000/chats",{message:sentMessage.value},{headers:{"Authorization":token}})
     sentMessage.value=""
     console.log(res)
-    //const {chat,user}=res.data
-    //showChatsOnScreen({...chat,user})
     
    }
    catch(err) 
@@ -32,10 +30,27 @@ async function onsubmit(e)
 
 window.addEventListener('DOMContentLoaded',async () =>{
     try{
+    let oldmessages=JSON.parse(localStorage.getItem("messages"))
+    let lastMessageId
+    if(oldmessages)
+    {
+    lastMessageId=oldmessages[oldmessages.length-1].id
+    }
+    else
+    {
+    lastMessageId=-1
+    oldmessages=[]
+    }
     const token=localStorage.getItem("token")
-    const res=await axios.get("http://localhost:3000/chats",{headers:{Authorization:token}})
+    const res=await axios.get(`http://localhost:3000/chats?lastMessageId=${lastMessageId}`,{headers:{Authorization:token}})
     console.log(res)
-    res.data.forEach(data=>showChatsOnScreen(data))
+    let  mergeMessagedArray=oldmessages.concat(res.data)
+    if(mergeMessagedArray.length>10)
+    {
+        mergeMessagedArray=mergeMessagedArray.slice(mergeMessagedArray.length-10)
+    }
+    localStorage.setItem("messages",JSON.stringify(mergeMessagedArray))
+    JSON.parse(localStorage.getItem("messages")).forEach(data=>showChatsOnScreen(data))
     }
     catch(err)
     {
@@ -44,9 +59,18 @@ window.addEventListener('DOMContentLoaded',async () =>{
 })
 setInterval(async ()=>{
     try{
+        let lastMessageId
+        if(chatList.lastElementChild)
+        {
+            lastMessageId=chatList.lastElementChild.id
+        }
+        else
+        {
+            lastMessageId=-1
+        }
         const token=localStorage.getItem("token")
-        const res=await axios.get("http://localhost:3000/chats",{headers:{Authorization:token}})
-        chatList.innerHTML=""
+        const res=await axios.get(`http://localhost:3000/chats?lastMessageId=${chatList.lastElementChild.id}`,{headers:{Authorization:token}})
+        //chatList.innerHTML=""
         console.log(res)
         res.data.forEach(data=>showChatsOnScreen(data))
         }

@@ -1,9 +1,11 @@
 const Users=require("../models/user")
 const Chats=require("../models/chat")
+const {Op}=require("sequelize")
 
 exports.getChats=async (req,res,next)=>{
     try{
-    const chats=await Chats.findAll({include:[
+        console.log(req.query)
+    const chats=await Chats.findAll({where:{id:{[Op.gt]:req.query.lastMessageId}},include:[
         {
             model:Users,
             attributes:["name"]
