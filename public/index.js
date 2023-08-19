@@ -17,9 +17,10 @@ async function onsubmit(e)
    try{
     const token= localStorage.getItem("token")
     const res=await axios.post("http://localhost:3000/chats",{message:sentMessage.value},{headers:{"Authorization":token}})
+    sentMessage.value=""
     console.log(res)
-    const {chat,user}=res.data
-    showChatsOnScreen({...chat,user})
+    //const {chat,user}=res.data
+    //showChatsOnScreen({...chat,user})
     
    }
    catch(err) 
@@ -41,3 +42,16 @@ window.addEventListener('DOMContentLoaded',async () =>{
         console.log(err)
     }
 })
+setInterval(async ()=>{
+    try{
+        const token=localStorage.getItem("token")
+        const res=await axios.get("http://localhost:3000/chats",{headers:{Authorization:token}})
+        chatList.innerHTML=""
+        console.log(res)
+        res.data.forEach(data=>showChatsOnScreen(data))
+        }
+        catch(err)
+        {
+            console.log(err)
+        }
+},1000)
