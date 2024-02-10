@@ -5,14 +5,14 @@ const authenticate =async (req,res,next)=>{
     try{
         const token=req.header("Authorization")
         const user=jwt.verify(token,process.env.JWT_SECRET_KEY)
-        console.log(req.query)
+        console.log(req.body)
         User.findByPk(user.userId)
         .then(user=>{
             req.user=user
             next()
         })
     }
-        catch(err){
+    catch(err){
             res.status(401).json({success:false})
             console.log(err)
         }

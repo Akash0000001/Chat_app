@@ -3,7 +3,7 @@ const sentMessage=document.getElementById("message")
 const createGroup=document.getElementById("groupbutton-1")
 const createGroupContainer=document.getElementById("creategroup")
 const token=localStorage.getItem("token")
-
+let id
 
 
 function showgroupsonscreen(group)
@@ -18,10 +18,38 @@ function showgroupsonscreen(group)
     groupListItem.appendChild(groupButton)
     groupList.appendChild(groupListItem)
 }
+async function addmsg(e)
+        {
+            e.preventDefault()
+            try{
+                const msg=document.getElementById("message")
+                const res=await axios.post("http://localhost:3000/chats",{message:msg.value,groupId:id},{headers:{Authorization:token}})
+                msg.value=""
+            }
+            catch(err)
+            {
+                console.log(err)
+            }
 
+        }
 
+    async function addmember(e)
+        {
+            e.preventDefault()
+            try{
+                const email=document.getElementById("addMember")
+                const res=await axios.post("http://localhost:3000/groups/addMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                email.value=""
+                document.getElementById("addMembermsg").textContent=res.data
+            }
+            catch(err)
+            {
+                console.log(err)
+            }
 
-window.addEventListener('DOMContentLoaded',async () =>{
+        }
+
+window.addEventListener("DOMContentLoaded",async () =>{
     try{
         
     // let oldmessages=JSON.parse(localStorage.getItem("messages"))
@@ -45,7 +73,7 @@ window.addEventListener('DOMContentLoaded',async () =>{
     // }
     // localStorage.setItem("messages",JSON.stringify(mergeMessagedArray))
     // JSON.parse(localStorage.getItem("messages")).forEach(data=>showChatsOnScreen(data))
-    const res=await axios.get("htttp://localhost:3000/groups",{headers:{Authorization:token}})
+    const res=await axios.get("http://localhost:3000/groups?lastGroupId=-1",{headers:{Authorization:token}})
     res.data.forEach(group=>showgroupsonscreen(group))
 
 }
@@ -66,7 +94,7 @@ async function creategroup(e)
     e.preventDefault()
     try{
         const groupName=document.getElementById("groupname")
-        const res=axios.post("http://localhost:3000/groups/create",{groupName:groupName.value},{headers:{Authorization:token}})
+        const res=await axios.post("http://localhost:3000/groups/create",{groupName:groupName.value},{headers:{Authorization:token}})
     }
     catch(err)
     {
@@ -79,17 +107,23 @@ async function creategroup(e)
 groupList.addEventListener("click",async(e)=>{
     if (e.target.value==="Open")
     {
-        const res=await axios.get(`http://localhost:3000/chats?name=akash`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
+        id=e.target.parentElement.id
+        const token=localStorage.getItem("token")
+        const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=-1`,{headers:{Authorization:token}})
+        console.log(res)
         const ul=document.createElement("ul")
         const li=document.createElement("li")
-        li.innerHtml="<form id='form'><input type='text' class='form-control' placeholder='type a message' id='message' required><input type='submit' value='Send Message' class='btn btn-primary' style='margin-left:10px;'>"
+        li.className="list-group-item"
+        li.innerHTML="<form id='formMsg' onsubmit='addmsg(event)'><input type='text' placeholder='type a message' id='message' required><input type='submit' value='Send Message'></form>"
         ul.appendChild(li)
         if (res.data.admin===true)
         {
             const li=document.createElement("li")
-            li.innerHtml="<form id='form'><input type='text' class='form-control' placeholder='Enter Email to add member' id='addMember' required><input type='submit' value='Add Member' class='btn btn-primary' style='margin-left:10px;'>" 
+            li.className="list-group-item"
+            li.innerHTML="<form id='formAdd'onsubmit='addmember(event)'><input type='text'placeholder='Enter Email to add member' id='addMember' required><input type='submit' value='Add Member'></form><br><p id='addMembermsg'></p>" 
             ul.appendChild(li)
         }
+        e.target.parentElement.appendChild(ul)
         const chatList=document.createElement("ul")
         res.data.chats.forEach(chat=>showChatsOnScreen(chat))
         
@@ -101,53 +135,53 @@ groupList.addEventListener("click",async(e)=>{
         chatListItem.appendChild(document.createTextNode(`${chat.user.name}: ${chat.message}`))
         chatList.appendChild(chatListItem)
     }
+    e.target.parentElement.appendChild(chatList)
 
-        setInterval(async ()=>{
-            try{
-                let lastMessageId
-                if(chatList.lastElementChild)
-                {
-                    lastMessageId=chatList.lastElementChild.id
-                }
-                else
-                {
-                    lastMessageId=-1
-                }
-                const token=localStorage.getItem("token")
-                const res=await axios.get(`http://localhost:3000/chats?lastMessageId=${chatList.lastElementChild.id}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
-                //chatList.innerHTML=""
-                console.log(res)
-                res.data.chats.forEach(data=>showChatsonScreen(data))
-                }
-                catch(err)
-                {
-                    console.log(err)
-                }
-        },1000)
-        
+        // setInterval(async ()=>{
+        //     try{
+        //         let lastMessageId
+        //         if(chatList.lastElementChild)
+        //         {
+        //             lastMessageId=chatList.lastElementChild.id
+        //         }
+        //         else
+        //         {
+        //             lastMessageId=-1
+        //         }
+        //         const token=localStorage.getItem("token")
+        //         const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
+        //         //chatList.innerHTML=""
+        //         console.log(res)
+        //         res.data.chats.forEach(data=>showChatsOnScreen(data))
+        //         }
+        //         catch(err)
+        //         {
+        //             console.log(err)
+        //         }
+        // },1000)
     }
-} )
+})
 
 
-setInterval(async ()=>{
-    try{
-        let lastGroupId
-        if(groupList.lastElementChild)
-        {
-            lastGroupId=groupList.lastElementChild.id
-        }
-        else
-        {
-            lastGroupId=-1
-        }
-        const token=localStorage.getItem("token")
-        const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
-        //chatList.innerHTML=""
-        console.log(res)
-        res.data.forEach(data=>showgroupsonscreen(data))
-        }
-        catch(err)
-        {
-            console.log(err)
-        }}
-        ,1000)
+// setInterval(async ()=>{
+//     try{
+//         let lastGroupId
+//         if(groupList.lastElementChild)
+//         {
+//             lastGroupId=groupList.lastElementChild.id
+//         }
+//         else
+//         {
+//             lastGroupId=-1
+//         }
+//         const token=localStorage.getItem("token")
+//         const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
+//         //chatList.innerHTML=""
+//         console.log(res)
+//         res.data.forEach(data=>showgroupsonscreen(data))
+//         }
+//         catch(err)
+//         {
+//             console.log(err)
+//         }}
+//         ,1000)
