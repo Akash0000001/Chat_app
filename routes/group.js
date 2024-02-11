@@ -8,5 +8,7 @@ router.get("/",authenticate,groupController.getGroups)
 
 router.post("/create",authenticate,groupController.createGroup)
 router.post("/addMember",authenticate,groupController.addMember)
+router.post("/makeAdmin",authenticate,groupController.makeAdmin)
+router.post("/removeMember",authenticate,groupController.removeMember)
 
 module.exports=router

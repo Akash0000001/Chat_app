@@ -1,6 +1,7 @@
 const Users=require("../models/user")
 const Groups=require("../models/group")
 const Chats=require("../models/chat")
+const groupAdmin=require("../models/groupAdmin")
 const {Op}=require("sequelize")
 
 exports.getChats=async (req,res,next)=>{
@@ -13,7 +14,8 @@ exports.getChats=async (req,res,next)=>{
     }
     ]
      })
-    res.status(200).json({chats,admin:group.admin===req.user.email})
+    const groupadmin=await groupAdmin.findOne({where:{groupId:group.id,adminEmail:req.user.email}})
+    res.status(200).json({chats,admin:groupadmin!=null})
 }
 catch(err)
 {

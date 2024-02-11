@@ -41,6 +41,39 @@ async function addmsg(e)
                 const res=await axios.post("http://localhost:3000/groups/addMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
                 email.value=""
                 document.getElementById("addMembermsg").textContent=res.data
+                setTimeout(()=>document.getElementById("addMembermsg").innerHTML="",10000)
+            }
+            catch(err)
+            {
+                console.log(err)
+            }
+
+        }
+        async function makeadmin(e)
+        {
+            e.preventDefault()
+            try{
+                const email=document.getElementById("makeAdmin")
+                const res=await axios.post("http://localhost:3000/groups/makeAdmin",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                email.value=""
+                document.getElementById("makeAdminmsg").textContent=res.data
+                setTimeout(()=>document.getElementById("makeAdminmsg").innerHTML="",10000)
+            }
+            catch(err)
+            {
+                console.log(err)
+            }
+
+        }
+        async function removemember(e)
+        {
+            e.preventDefault()
+            try{
+                const email=document.getElementById("removeMember")
+                const res=await axios.post("http://localhost:3000/groups/removeMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                email.value=""
+                document.getElementById("removeMembermsg").textContent=res.data
+                setTimeout(()=>document.getElementById("removeMembermsg").innerHTML="",10000)
             }
             catch(err)
             {
@@ -95,6 +128,8 @@ async function creategroup(e)
     try{
         const groupName=document.getElementById("groupname")
         const res=await axios.post("http://localhost:3000/groups/create",{groupName:groupName.value},{headers:{Authorization:token}})
+        createGroupContainer.textContent=`${groupName.value} group is created`
+        setTimeout(()=>createGroupContainer.innerHTML="",10000)
     }
     catch(err)
     {
@@ -120,7 +155,7 @@ groupList.addEventListener("click",async(e)=>{
         {
             const li=document.createElement("li")
             li.className="list-group-item"
-            li.innerHTML="<form id='formAdd'onsubmit='addmember(event)'><input type='text'placeholder='Enter Email to add member' id='addMember' required><input type='submit' value='Add Member'></form><br><p id='addMembermsg'></p>" 
+            li.innerHTML="<form id='formAdd'onsubmit='addmember(event)'><input type='text'placeholder='Enter Email to add member' id='addMember' required><input type='submit' value='Add Member'></form><br><p id='addMembermsg'></p><form id='formAdmin'onsubmit='makeadmin(event)'><input type='text'placeholder='Enter Email to make member an admin' id='makeAdmin' required><input type='submit' value='Make Admin'></form><br><p id='makeAdminmsg'></p><form id='formremove'onsubmit='removemember(event)'><input type='text'placeholder='Enter Email to remove member' id='removeMember' required><input type='submit' value='Remove Member'></form><br><p id='removeMembermsg'></p>" 
             ul.appendChild(li)
         }
         e.target.parentElement.appendChild(ul)
@@ -137,51 +172,50 @@ groupList.addEventListener("click",async(e)=>{
     }
     e.target.parentElement.appendChild(chatList)
 
-        // setInterval(async ()=>{
-        //     try{
-        //         let lastMessageId
-        //         if(chatList.lastElementChild)
-        //         {
-        //             lastMessageId=chatList.lastElementChild.id
-        //         }
-        //         else
-        //         {
-        //             lastMessageId=-1
-        //         }
-        //         const token=localStorage.getItem("token")
-        //         const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
-        //         //chatList.innerHTML=""
-        //         console.log(res)
-        //         res.data.chats.forEach(data=>showChatsOnScreen(data))
-        //         }
-        //         catch(err)
-        //         {
-        //             console.log(err)
-        //         }
-        // },1000)
+        setInterval(async ()=>{
+            try{
+                let lastMessageId
+                if(chatList.lastElementChild)
+                {
+                    lastMessageId=chatList.lastElementChild.id
+                }
+                else
+                {
+                    lastMessageId=-1
+                }
+                const token=localStorage.getItem("token")
+                const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
+                //chatList.innerHTML=""
+                console.log(res)
+                res.data.chats.forEach(data=>showChatsOnScreen(data))
+                }
+                catch(err)
+                {
+                    console.log(err)
+                }
+        },1000)
     }
 })
 
 
-// setInterval(async ()=>{
-//     try{
-//         let lastGroupId
-//         if(groupList.lastElementChild)
-//         {
-//             lastGroupId=groupList.lastElementChild.id
-//         }
-//         else
-//         {
-//             lastGroupId=-1
-//         }
-//         const token=localStorage.getItem("token")
-//         const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
-//         //chatList.innerHTML=""
-//         console.log(res)
-//         res.data.forEach(data=>showgroupsonscreen(data))
-//         }
-//         catch(err)
-//         {
-//             console.log(err)
-//         }}
-//         ,1000)
+setInterval(async ()=>{
+    try{
+        let lastGroupId
+        if(groupList.lastElementChild)
+        {
+            lastGroupId=groupList.lastElementChild.id
+        }
+        else
+        {
+            lastGroupId=-1
+        }
+        const token=localStorage.getItem("token")
+        const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
+        console.log(res)
+        res.data.forEach(data=>showgroupsonscreen(data))
+        }
+        catch(err)
+        {
+            console.log(err)
+        }}
+        ,1000)
