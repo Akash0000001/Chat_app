@@ -18,11 +18,11 @@ async function onsubmit(e)
         alert(res.data.message)
         window.location.href="/Login/login.html"
     }
-    console.log(res)
     }
     catch(err)
     {
-        console.log(err)
+        document.getElementById("errmsg").textContent="Something Went Wrong"
+        setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
     }
 
 }

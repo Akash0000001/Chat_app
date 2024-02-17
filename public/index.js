@@ -28,7 +28,8 @@ async function addmsg(e)
             }
             catch(err)
             {
-                console.log(err)
+                document.getElementById("errmsg").textContent="Something Went Wrong"
+                setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
             }
 
         }
@@ -45,7 +46,8 @@ async function addmsg(e)
             }
             catch(err)
             {
-                console.log(err)
+                document.getElementById("errmsg").textContent="Something Went Wrong"
+                setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
             }
 
         }
@@ -77,7 +79,8 @@ async function addmsg(e)
             }
             catch(err)
             {
-                console.log(err)
+                document.getElementById("errmsg").textContent="Something Went Wrong"
+                setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
             }
 
         }
@@ -112,7 +115,8 @@ window.addEventListener("DOMContentLoaded",async () =>{
 }
     catch(err)
     {
-        console.log(err)
+        document.getElementById("errmsg").textContent="Something Went Wrong"
+        setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
     }
 })
 
@@ -133,19 +137,20 @@ async function creategroup(e)
     }
     catch(err)
     {
-        console.log(err)
+        document.getElementById("errmsg").textContent="Something Went Wrong"
+        setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
     }
 }
 
 
 
 groupList.addEventListener("click",async(e)=>{
+try{
     if (e.target.value==="Open")
     {
         id=e.target.parentElement.id
         const token=localStorage.getItem("token")
         const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=-1`,{headers:{Authorization:token}})
-        console.log(res)
         const ul=document.createElement("ul")
         const li=document.createElement("li")
         li.className="list-group-item"
@@ -191,10 +196,17 @@ groupList.addEventListener("click",async(e)=>{
                 }
                 catch(err)
                 {
-                    console.log(err)
+                    document.getElementById("errmsg").textContent="Something Went Wrong"
+                    setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
                 }
         },1000)
     }
+}
+catch(err)
+{
+    document.getElementById("errmsg").textContent="Something Went Wrong"
+    setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
+}
 })
 
 
@@ -211,11 +223,11 @@ setInterval(async ()=>{
         }
         const token=localStorage.getItem("token")
         const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
-        console.log(res)
         res.data.forEach(data=>showgroupsonscreen(data))
         }
         catch(err)
         {
-            console.log(err)
+            document.getElementById("errmsg").textContent="Something Went Wrong"
+            setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
         }}
         ,1000)
