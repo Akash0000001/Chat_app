@@ -9,7 +9,7 @@ async function onsubmit(e)
 {
     try{
     e.preventDefault();
-    const res =await axios.post("http://localhost:3000/user/signup",{name:name.value,email:email.value,password:password.value})
+    const res =await axios.post("http://3.110.88.239:3000/user/signup",{name:name.value,email:email.value,password:password.value})
     if(res.status===201)
     {
         alert(res.data.message)

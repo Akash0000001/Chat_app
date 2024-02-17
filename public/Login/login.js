@@ -9,13 +9,14 @@ async function onsubmit(e)
     e.preventDefault();
     try{
         
-        const res=await axios.post("http://localhost:3000/user/login",{email:email.value , password:password.value})
+        const res=await axios.post("http://3.110.88.239:3000/user/login",{email:email.value , password:password.value})
         localStorage.setItem("token",res.data.token)
         alert(res.data.message)
         window.location.href="/index.html"
     }
     catch(err)
     {
-        console.log(err)
+        document.getElementById("errmsg").textContent="Something Went Wrong"
+        setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
     }
 }
