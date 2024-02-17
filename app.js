@@ -19,7 +19,7 @@ app.use("/user",userRoutes)
 app.use("/chats",chatRoutes)
 app.use("/groups",groupRoutes)
 app.use((req,res,next)=>{
-    res.sendFile(path.join(__dirname,`Public/${req.url}`))
+    res.sendFile(path.join(__dirname,`public/${req.url}`))
 })
 
 Users.hasMany(Chats)
