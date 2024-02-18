@@ -23,7 +23,7 @@ async function addmsg(e)
             e.preventDefault()
             try{
                 const msg=document.getElementById("message")
-                const res=await axios.post("http://3.110.88.239:3000/chats",{message:msg.value,groupId:id},{headers:{Authorization:token}})
+                const res=await axios.post("http://localhost:3000/chats",{message:msg.value,groupId:id},{headers:{Authorization:token}})
                 msg.value=""
             }
             catch(err)
@@ -39,7 +39,7 @@ async function addmsg(e)
             e.preventDefault()
             try{
                 const email=document.getElementById("addMember")
-                const res=await axios.post("http://3.110.88.239:3000/groups/addMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                const res=await axios.post("http://localhost:3000/groups/addMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
                 email.value=""
                 document.getElementById("addMembermsg").textContent=res.data
                 setTimeout(()=>document.getElementById("addMembermsg").innerHTML="",10000)
@@ -56,7 +56,7 @@ async function addmsg(e)
             e.preventDefault()
             try{
                 const email=document.getElementById("makeAdmin")
-                const res=await axios.post("http://3.110.88.239:3000/groups/makeAdmin",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                const res=await axios.post("http://localhost:3000/groups/makeAdmin",{email:email.value,groupId:id},{headers:{Authorization:token}})
                 email.value=""
                 document.getElementById("makeAdminmsg").textContent=res.data
                 setTimeout(()=>document.getElementById("makeAdminmsg").innerHTML="",10000)
@@ -72,7 +72,7 @@ async function addmsg(e)
             e.preventDefault()
             try{
                 const email=document.getElementById("removeMember")
-                const res=await axios.post("http://3.110.88.239:3000/groups/removeMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                const res=await axios.post("http://localhost:3000/groups/removeMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
                 email.value=""
                 document.getElementById("removeMembermsg").textContent=res.data
                 setTimeout(()=>document.getElementById("removeMembermsg").innerHTML="",10000)
@@ -109,7 +109,7 @@ window.addEventListener("DOMContentLoaded",async () =>{
     // }
     // localStorage.setItem("messages",JSON.stringify(mergeMessagedArray))
     // JSON.parse(localStorage.getItem("messages")).forEach(data=>showChatsOnScreen(data))
-    const res=await axios.get("http://3.110.88.239:3000/groups?lastGroupId=-1",{headers:{Authorization:token}})
+    const res=await axios.get("http://localhost:3000/groups?lastGroupId=-1",{headers:{Authorization:token}})
     res.data.forEach(group=>showgroupsonscreen(group))
 
 }
@@ -131,7 +131,7 @@ async function creategroup(e)
     e.preventDefault()
     try{
         const groupName=document.getElementById("groupname")
-        const res=await axios.post("http://3.110.88.239:3000/groups/create",{groupName:groupName.value},{headers:{Authorization:token}})
+        const res=await axios.post("http://localhost:3000/groups/create",{groupName:groupName.value},{headers:{Authorization:token}})
         createGroupContainer.textContent=`${groupName.value} group is created`
         setTimeout(()=>createGroupContainer.innerHTML="",10000)
     }
@@ -150,7 +150,7 @@ try{
     {
         id=e.target.parentElement.id
         const token=localStorage.getItem("token")
-        const res=await axios.get(`http://3.110.88.239:3000/chats?groupId=${id}&lastMessageId=-1`,{headers:{Authorization:token}})
+        const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=-1`,{headers:{Authorization:token}})
         const ul=document.createElement("ul")
         const li=document.createElement("li")
         li.className="list-group-item"
@@ -189,7 +189,7 @@ try{
                     lastMessageId=-1
                 }
                 const token=localStorage.getItem("token")
-                const res=await axios.get(`http://3.110.88.239:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
+                const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
                 //chatList.innerHTML=""
                 console.log(res)
                 res.data.chats.forEach(data=>showChatsOnScreen(data))
@@ -222,7 +222,7 @@ setInterval(async ()=>{
             lastGroupId=-1
         }
         const token=localStorage.getItem("token")
-        const res=await axios.get(`http://3.110.88.239:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
+        const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
         res.data.forEach(data=>showgroupsonscreen(data))
         }
         catch(err)
