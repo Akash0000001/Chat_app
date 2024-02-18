@@ -11,7 +11,7 @@ exports.getGroups=async (req,res,next)=>{
 }
 catch(err)
 {
-    console.log(err)
+    res.status(404).json(err)
 }
 }
 
@@ -56,7 +56,6 @@ exports.addMember=async (req,res,next)=>{
     }
     catch(err)
     {
-        console.log(err)
         res.status(400).json(err)
     }
 }
@@ -89,7 +88,6 @@ exports.makeAdmin=async (req,res,next)=>{
     }
     catch(err)
     {
-        console.log(err)
         res.status(400).json(err)
     }
 }
@@ -122,7 +120,6 @@ exports.removeMember=async (req,res,next)=>{
     }
     catch(err)
     {
-        console.log(err)
         res.status(400).json(err)
     }
 }

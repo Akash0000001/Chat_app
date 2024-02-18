@@ -18,7 +18,6 @@ async function onsubmit(e)
         alert(res.data.message)
         window.location.href="/Login/login.html"
     }
-    console.log(res)
     }
     catch(err)
     {

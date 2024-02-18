@@ -19,7 +19,7 @@ exports.getChats=async (req,res,next)=>{
 }
 catch(err)
 {
-    console.log(err)
+    res.status(404).json(err)
 }
 }
 
@@ -31,6 +31,6 @@ exports.addChat=async (req,res,next)=>{
     }
     catch(err)
     {
-        console.log(err)
+        res.status(404).json(err)
     }
 }

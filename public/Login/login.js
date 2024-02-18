@@ -16,7 +16,7 @@ async function onsubmit(e)
     }
     catch(err)
     {
-        document.getElementById("errmsg").textContent="Something Went Wrong"
+        document.getElementById("errmsg").textContent=err
         setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
     }
 }
