@@ -2,6 +2,9 @@ const name=document.getElementById("name");
 const email=document.getElementById("email");
 const password=document.getElementById("password")
 const form=document.getElementById("form")
+import {io} from "socket.io-client"
+
+io.on("http://localhost:3000")
 
 form.addEventListener("submit",onsubmit)
 
