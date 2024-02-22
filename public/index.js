@@ -3,9 +3,62 @@ const sentMessage=document.getElementById("message")
 const createGroup=document.getElementById("groupbutton-1")
 const createGroupContainer=document.getElementById("creategroup")
 const token=localStorage.getItem("token")
-let id
 
-
+const socket=io({auth:{token:localStorage.getItem("token")}})
+socket.on("recieve-message",message=>{
+    for(let i=0;i<groupList.children.length;i++){
+        if(groupList.children[i].id===message.chat.groupId)
+        {
+            if(groupList.children[i].children.length>1 && groupList.children[i].children[1].children[0].children.length>0)
+            {
+                const chatListItem=document.createElement("li")
+                chatListItem.id=message.chat.id
+                chatListItem.className="list-group-item"
+                chatListItem.appendChild(document.createTextNode(`${message.user.name}: ${message.chat.message}`))
+                groupList.children[i].lastElementChild.appendChild(chatListItem)
+                break;
+            }
+            else
+            break;
+        }
+    }
+})
+socket.on("display-group",group=>showgroupsonscreen(group))
+socket.on("display-admin",id=>{
+    for(let i=0;i<groupList.children.length;i++){
+        if(groupList.children[i].id===id)
+        {
+            if(groupList.children[i].children.length>1)
+            {
+                const li=document.createElement("li")
+                li.className="list-group-item"
+                li.innerHTML=`<form id='formAdd${id}' onsubmit='addmember(event)'><input type='text'placeholder='Enter Email to add member' id='addMember${id}' required><input type='submit' value='Add Member'></form><br><p id='addMembermsg${id}'></p><form id='formAdmin${id}'onsubmit='makeadmin(event)'><input type='text'placeholder='Enter Email to make member an admin' id='makeAdmin${id}' required><input type='submit' value='Make Admin'></form><br><p id='makeAdminmsg${id}'></p><form id='formremove${id}'onsubmit='removemember(event)'><input type='text'placeholder='Enter Email to remove member' id='removeMember${id}' required><input type='submit' value='Remove Member'></form><br><p id='removeMembermsg${id}'></p>`
+                groupList.children[i].children[1].appendChild(li)
+                break;
+            }
+            else
+            break;
+        }
+    }
+})
+socket.on("remove-member",id=>{
+    for(let i=0;i<groupList.children.length;i++){
+        if(groupList.children[i].id===id)
+        {
+            if(groupList.children[i].children.length>1)
+            {
+                groupList.children[i].children[1].innerHTML='<li style="list-style:none">you are no longer a member of this group</li>'
+                break;
+            }
+            else
+            {
+                groupList.children[i].remove()
+                break;
+            }
+           
+        }
+    }
+})
 function showgroupsonscreen(group)
 {
     const groupListItem=document.createElement("li")
@@ -18,12 +71,15 @@ function showgroupsonscreen(group)
     groupListItem.appendChild(groupButton)
     groupList.appendChild(groupListItem)
 }
+
 async function addmsg(e)
         {
             e.preventDefault()
             try{
-                const msg=document.getElementById("message")
-                const res=await axios.post("http://localhost:3000/chats",{message:msg.value,groupId:id},{headers:{Authorization:token}})
+                const groupId=e.target.parentElement.parentElement.parentElement.id
+                const msg=document.getElementById(`message${groupId}`)
+                const res=await axios.post("http://localhost:3000/chats",{message:msg.value,groupId:groupId},{headers:{Authorization:token}})
+                socket.emit("send-message",res.data)
                 msg.value=""
             }
             catch(err)
@@ -38,11 +94,17 @@ async function addmsg(e)
         {
             e.preventDefault()
             try{
-                const email=document.getElementById("addMember")
-                const res=await axios.post("http://localhost:3000/groups/addMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                const groupId=e.target.parentElement.parentElement.parentElement.id
+                const email=document.getElementById(`addMember${groupId}`)
+                const res=await axios.post("http://localhost:3000/groups/addMember",{email:email.value,groupId:groupId},{headers:{Authorization:token}})
+                document.getElementById(`addMembermsg${groupId}`).textContent=res.data
+                setTimeout(()=>document.getElementById(`addMembermsg${groupId}`).innerHTML="",10000)
+                const group={name:e.target.parentElement.parentElement.parentElement.firstChild.textContent,id:groupId}
+                if(res.status===201)
+                {
+                    socket.emit("add-member",group,email.value)
+                }
                 email.value=""
-                document.getElementById("addMembermsg").textContent=res.data
-                setTimeout(()=>document.getElementById("addMembermsg").innerHTML="",10000)
             }
             catch(err)
             {
@@ -55,15 +117,19 @@ async function addmsg(e)
         {
             e.preventDefault()
             try{
-                const email=document.getElementById("makeAdmin")
-                const res=await axios.post("http://localhost:3000/groups/makeAdmin",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                const groupId=e.target.parentElement.parentElement.parentElement.id
+                const email=document.getElementById(`makeAdmin${groupId}`)
+                const res=await axios.post("http://localhost:3000/groups/makeAdmin",{email:email.value,groupId:groupId},{headers:{Authorization:token}})
+                socket.emit("make-admin",groupId,email.value)
                 email.value=""
-                document.getElementById("makeAdminmsg").textContent=res.data
-                setTimeout(()=>document.getElementById("makeAdminmsg").innerHTML="",10000)
+                document.getElementById(`makeAdminmsg${groupId}`).textContent=res.data
+                setTimeout(()=>document.getElementById(`makeAdminmsg${groupId}`).innerHTML="",10000)
+
             }
             catch(err)
             {
-                console.log(err)
+                document.getElementById("errmsg").textContent="Something Went Wrong"
+                setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
             }
 
         }
@@ -71,11 +137,14 @@ async function addmsg(e)
         {
             e.preventDefault()
             try{
-                const email=document.getElementById("removeMember")
-                const res=await axios.post("http://localhost:3000/groups/removeMember",{email:email.value,groupId:id},{headers:{Authorization:token}})
+                const groupId=e.target.parentElement.parentElement.parentElement.id
+                const email=document.getElementById(`removeMember${groupId}`)
+                const res=await axios.post("http://localhost:3000/groups/removeMember",{email:email.value,groupId:groupId},{headers:{Authorization:token}})
+                socket.emit("send-removemember",groupId,email.value)
                 email.value=""
-                document.getElementById("removeMembermsg").textContent=res.data
-                setTimeout(()=>document.getElementById("removeMembermsg").innerHTML="",10000)
+                console.log(res)
+                document.getElementById(`removeMembermsg${groupId}`).textContent=res.data
+                setTimeout(()=>document.getElementById(`removeMembermsg${groupId}`).innerHTML="",10000)
             }
             catch(err)
             {
@@ -134,6 +203,7 @@ async function creategroup(e)
         const res=await axios.post("http://localhost:3000/groups/create",{groupName:groupName.value},{headers:{Authorization:token}})
         createGroupContainer.textContent=`${groupName.value} group is created`
         setTimeout(()=>createGroupContainer.innerHTML="",10000)
+        showgroupsonscreen(res.data.group)
     }
     catch(err)
     {
@@ -148,24 +218,25 @@ groupList.addEventListener("click",async(e)=>{
 try{
     if (e.target.value==="Open")
     {
-        id=e.target.parentElement.id
+        const id=e.target.parentElement.id
         const token=localStorage.getItem("token")
         const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=-1`,{headers:{Authorization:token}})
         const ul=document.createElement("ul")
         const li=document.createElement("li")
         li.className="list-group-item"
-        li.innerHTML="<form id='formMsg' onsubmit='addmsg(event)'><input type='text' placeholder='type a message' id='message' required><input type='submit' value='Send Message'></form>"
+        li.innerHTML=`<form id='formMsg${id}'onsubmit='addmsg(event)'><input type='text' placeholder='type a message' id='message${id}' required><input type='submit' value='Send Message'></form>`
         ul.appendChild(li)
         if (res.data.admin===true)
         {
             const li=document.createElement("li")
             li.className="list-group-item"
-            li.innerHTML="<form id='formAdd'onsubmit='addmember(event)'><input type='text'placeholder='Enter Email to add member' id='addMember' required><input type='submit' value='Add Member'></form><br><p id='addMembermsg'></p><form id='formAdmin'onsubmit='makeadmin(event)'><input type='text'placeholder='Enter Email to make member an admin' id='makeAdmin' required><input type='submit' value='Make Admin'></form><br><p id='makeAdminmsg'></p><form id='formremove'onsubmit='removemember(event)'><input type='text'placeholder='Enter Email to remove member' id='removeMember' required><input type='submit' value='Remove Member'></form><br><p id='removeMembermsg'></p>" 
+            li.innerHTML=`<form id='formAdd${id}' onsubmit='addmember(event)'><input type='text'placeholder='Enter Email to add member' id='addMember${id}' required><input type='submit' value='Add Member'></form><br><p id='addMembermsg${id}'></p><form id='formAdmin${id}'onsubmit='makeadmin(event)'><input type='text'placeholder='Enter Email to make member an admin' id='makeAdmin${id}' required><input type='submit' value='Make Admin'></form><br><p id='makeAdminmsg${id}'></p><form id='formremove${id}'onsubmit='removemember(event)'><input type='text'placeholder='Enter Email to remove member' id='removeMember${id}' required><input type='submit' value='Remove Member'></form><br><p id='removeMembermsg${id}'></p>`
             ul.appendChild(li)
         }
         e.target.parentElement.appendChild(ul)
         const chatList=document.createElement("ul")
         res.data.chats.forEach(chat=>showChatsOnScreen(chat))
+        
         
         function showChatsOnScreen(chat)
     {
@@ -177,57 +248,57 @@ try{
     }
     e.target.parentElement.appendChild(chatList)
 
-        setInterval(async ()=>{
-            try{
-                let lastMessageId
-                if(chatList.lastElementChild)
-                {
-                    lastMessageId=chatList.lastElementChild.id
-                }
-                else
-                {
-                    lastMessageId=-1
-                }
-                const token=localStorage.getItem("token")
-                const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
-                //chatList.innerHTML=""
-                console.log(res)
-                res.data.chats.forEach(data=>showChatsOnScreen(data))
-                }
-                catch(err)
-                {
-                    document.getElementById("errmsg").textContent="Something Went Wrong"
-                    setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
-                }
-        },1000)
+        // setInterval(async ()=>{
+        //     try{
+        //         let lastMessageId
+        //         if(chatList.lastElementChild)
+        //         {
+        //             lastMessageId=chatList.lastElementChild.id
+        //         }
+        //         else
+        //         {
+        //             lastMessageId=-1
+        //         }
+        //         const token=localStorage.getItem("token")
+        //         const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=${lastMessageId}`,{headers:{Authorization:token}},{groupId:e.target.parentElement.id})
+        //         //chatList.innerHTML=""
+                
+        //         res.data.chats.forEach(data=>showChatsOnScreen(data))
+        //         }
+        //         catch(err)
+        //         {
+        //             document.getElementById("errmsg").textContent="Something Went Wrong"
+        //             setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
+        //         }
+        // },1000)
     }
 }
 catch(err)
 {
-    document.getElementById("errmsg").textContent="Something Went Wrong"
+    document.getElementById("errmsg").textContent=err
     setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
 }
 })
 
 
-setInterval(async ()=>{
-    try{
-        let lastGroupId
-        if(groupList.lastElementChild)
-        {
-            lastGroupId=groupList.lastElementChild.id
-        }
-        else
-        {
-            lastGroupId=-1
-        }
-        const token=localStorage.getItem("token")
-        const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
-        res.data.forEach(data=>showgroupsonscreen(data))
-        }
-        catch(err)
-        {
-            document.getElementById("errmsg").textContent="Something Went Wrong"
-            setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
-        }}
-        ,1000)
+// setInterval(async ()=>{
+//     try{
+//         let lastGroupId
+//         if(groupList.lastElementChild)
+//         {
+//             lastGroupId=groupList.lastElementChild.id
+//         }
+//         else
+//         {
+//             lastGroupId=-1
+//         }
+//         const token=localStorage.getItem("token")
+//         const res=await axios.get(`http://localhost:3000/groups?lastGroupId=${lastGroupId}`,{headers:{Authorization:token}})
+//         res.data.forEach(data=>showgroupsonscreen(data))
+//         }
+//         catch(err)
+//         {
+//             document.getElementById("errmsg").textContent="Something Went Wrong"
+//             setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
+//         }}
+//         ,1000)

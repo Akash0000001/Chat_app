@@ -1,9 +1,6 @@
 const express= require ("express")
 const bodyparser= require("body-parser")
-const io=require("socket.io")(3000)
-io.on("connection",socket=>{
-    console.log(socket.id)
-})
+
 const path=require("path")
 const cors=require("cors")
 require("dotenv").config();
@@ -14,7 +11,9 @@ const groupRoutes=require("./routes/group")
 const Users=require("./models/user")
 const Chats=require("./models/chat")
 const Groups=require("./models/group")
-const GroupMembers=require("./models/groupMember")
+const GroupMembers=require("./models/groupMember");
+const { error } = require("console");
+const ioauthorize=require("./middlewares/ioauthorize")
 
 const app= express();
 app.use(cors())
@@ -36,5 +35,37 @@ Users.belongsToMany(Groups,{through:GroupMembers})
 Groups.belongsToMany(Users,{through:GroupMembers})
 
 sequelize.sync()
-.then((res)=>app.listen(3000))
+.then((res)=>{
+const server=app.listen(3000,()=>console.log("server created"))
+const io=require("socket.io")(server) 
+const userSocket={}
+    io.on("connection",socket=>{
+        const socketEmail=socket.user.email
+        userSocket[socketEmail]=socket.id
+        socket.on("send-message",message=>{
+    io.emit("recieve-message",message)
+        })
+        socket.on("add-member",(group,email)=>{
+            if(userSocket[socketEmail])
+            {
+                socket.to(userSocket[email]).emit("display-group",group)
+            }
+        })
+        socket.on("make-admin",(groupId,email)=>{
+            if(userSocket[socketEmail])
+            {
+                socket.to(userSocket[email]).emit("display-admin",groupId)
+            }
+        })
+        socket.on("send-removemember",(groupId,email)=>
+        {
+            if(userSocket[socketEmail])
+            {
+                socket.to(userSocket[email]).emit("remove-member",groupId)
+            }
+        })
+    })
+    io.use(ioauthorize)
+
+})
 .catch(err=>console.log(err))
