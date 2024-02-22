@@ -16,7 +16,8 @@ async function onsubmit(e)
     }
     catch(err)
     {
-        document.getElementById("errmsg").textContent=err
+        console.log(err)
+        document.getElementById("errmsg").textContent=err.message
         setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
     }
 }
