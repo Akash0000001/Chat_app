@@ -51,7 +51,7 @@ exports.authorizeUser=async (req,res,next)=>{
                     }
                     else
                     {
-                        res.status(401).json({success:false,message:"User not authorized"})
+                        res.status(201).json({success:true,message:"User not authorized"})
                     }
 
                 })
@@ -60,7 +60,7 @@ exports.authorizeUser=async (req,res,next)=>{
             
         }
     
-        return res.status(404).json({success:false,message:"User not found"})
+        return res.status(202).json({success:true,message:"User not found"})
     }
     catch(err)
     {
