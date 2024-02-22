@@ -225,6 +225,7 @@ try{
         const li=document.createElement("li")
         li.className="list-group-item"
         li.innerHTML=`<form id='formMsg${id}'onsubmit='addmsg(event)'><input type='text' placeholder='type a message' id='message${id}' required><input type='submit' value='Send Message'></form>`
+        li.innerHTML=li.innerHTML+`<form id='formFile${id}'onsubmit='addfile(event)'><input type='file' placeholder='select a file' id='file${id}' required><input type='submit' value='Send File'></form>`
         ul.appendChild(li)
         if (res.data.admin===true)
         {
