@@ -13,14 +13,14 @@ const { error } = require("console")
 const s3 = new aws.S3({
     accessKeyId: process.env.IAMUSER_ACCESS_KEY,
     secretAccessKey:process.env.IAMUSER_SECRET_ACCESS_KEY,
-    region:"ap-south-1"
+    region:process.env.AWS_REGION
   })
   
   // Configure multer to upload files in aws-s3
   const upload = multer({
     storage: multerS3({
       s3: s3,
-      bucket: 'chattapp', // Replace with your S3 bucket name
+      bucket:process.env.BUCKET_NAME, // Replace with your S3 bucket name
       contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically set the content type based on the file extension
       acl: 'public-read', // Set the access control level for the uploaded file
       key: function(req, file, cb) {
