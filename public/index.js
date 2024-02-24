@@ -24,7 +24,7 @@ socket.on("recieve-message",message=>{
                     link.textContent = message.chat.filename;
                     link.href = message.chat.message;
                     link.download = message.chat.filename
-                    chatListItem.appendChild(link)
+                    chatListItem.innerHTML=`${message.user.name}: `+link
                 }
                 groupList.children[i].lastElementChild.appendChild(chatListItem)
                 break;
