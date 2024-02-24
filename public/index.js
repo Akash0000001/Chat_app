@@ -283,9 +283,9 @@ try{
         else
         {
         const link = document.createElement('a');
-        link.textContent = fileInfo.filename;
-        link.href = fileInfo.url;
-        link.download = fileInfo.filename
+        link.textContent = chat.filename;
+        link.href = chat.message;
+        link.download = chile.filename
         chatListItem.appendChild(link)
     }
     chatList.appendChild(chatListItem)
