@@ -1,6 +1,6 @@
 const express= require ("express")
 const bodyparser= require("body-parser")
-//const http=require("http")
+const http=require("http")
 const path=require("path")
 const cors=require("cors")
 require("dotenv").config();
@@ -16,6 +16,7 @@ const { error } = require("console");
 const ioauthorize=require("./middlewares/ioauthorize")
 
 const app= express();
+const server=http.createServer(app)
 app.use(cors())
 app.use(bodyparser.json({extended:true}))
 app.use(bodyparser.urlencoded({extended:true}))
@@ -38,7 +39,7 @@ Groups.belongsToMany(Users,{through:GroupMembers})
 
 sequelize.sync()
 .then((res)=>{
-const server=app.listen(3000,()=>console.log("server created"))
+server.listen(3000,()=>console.log("server created"))
 const io=require("socket.io")(server) 
 const userSocket={}
     io.on("connection",socket=>{
