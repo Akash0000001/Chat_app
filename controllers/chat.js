@@ -32,6 +32,7 @@ const s3 = new aws.S3({
 exports.getChats=async (req,res,next)=>{
     try{
     const group =await Groups.findOne({where:{id:req.query.groupId}})
+    const userId=req.user.id
     const groupUser=await groupMembers.findOne({where:{userId:userId,groupId:group.id}})
     if(groupUser){
      const chats=await Chats.findAll({where:{id:{[Op.gt]:req.query.lastMessageId},groupId:req.query.groupId},include:[
