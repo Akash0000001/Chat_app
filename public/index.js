@@ -24,7 +24,8 @@ socket.on("recieve-message",message=>{
                     link.textContent = message.chat.filename;
                     link.href = message.chat.message;
                     link.download = message.chat.filename
-                    chatListItem.innerHTML=`${message.user.name}: ${link}`
+                    chatListItem.appendChild(document.createTextNode(`${message.user.name}: `))
+                    chatListItem.appendChild(link)
                 }
                 groupList.children[i].lastElementChild.appendChild(chatListItem)
                 break;
@@ -286,7 +287,8 @@ try{
         link.textContent = chat.filename;
         link.href = chat.message;
         link.download = chat.filename
-        chatListItem.innerHTML=`${chat.user.name}: ${link}`
+        chatListItem.appendChild(document.createTextNode(`${chat.user.name}: `))
+        chatListItem.appendChild(link)
     }
     chatList.appendChild(chatListItem)
     }
