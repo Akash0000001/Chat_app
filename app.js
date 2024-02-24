@@ -1,6 +1,6 @@
 const express= require ("express")
 const bodyparser= require("body-parser")
-
+//const http=require("http")
 const path=require("path")
 const cors=require("cors")
 require("dotenv").config();
@@ -19,10 +19,7 @@ const app= express();
 app.use(cors())
 app.use(bodyparser.json({extended:true}))
 app.use(bodyparser.urlencoded({extended:true}))
-app.use((req,res,next)=>{
-    console.log(req.body)
-    next()
-})
+
 app.use("/user",userRoutes)
 app.use("/chats",chatRoutes)
 app.use("/groups",groupRoutes)
