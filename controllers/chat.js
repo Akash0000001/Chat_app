@@ -4,7 +4,30 @@ const Chats=require("../models/chat")
 const groupAdmin=require("../models/groupAdmin")
 const groupMembers=require("../models/groupMember")
 const {Op}=require("sequelize")
+const aws=require("aws-sdk")
+const multer=require("multer")
+const multerS3=require("multer-s3")
 const { error } = require("console")
+
+
+const s3 = new aws.S3({
+    accessKeyId: process.env.IAMUSER_ACCESS_KEY,
+    secretAccessKey:process.env.IAMUSER_SECRET_ACCESS_KEY,
+    region:"ap-south-1"
+  })
+  
+  // Configure multer to upload files in aws-s3
+  const upload = multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: 'chattapp', // Replace with your S3 bucket name
+      contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically set the content type based on the file extension
+      acl: 'public-read', // Set the access control level for the uploaded file
+      key: function(req, file, cb) {
+      cb(null,file.originalname); // Set the key (filename) of the uploaded file
+      }
+    })
+  });
 
 exports.getChats=async (req,res,next)=>{
     try{
@@ -43,4 +66,17 @@ exports.addChat=async (req,res,next)=>{
     {
         res.status(404).json(err)
     }
+}
+
+exports.uploadFile=upload.single('file')
+exports.addFileUrltoDatabase=async (req,res,next)=>{
+    try{
+        const chat=await req.user.createChat({message:req.file.location,groupId:req.body.groupId,type:"url"})
+        const user={name:req.user.name}
+        res.status(201).json({chat,user})
+        }
+        catch(err)
+        {
+            res.status(404).json(err)
+        }
 }

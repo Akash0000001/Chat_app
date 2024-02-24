@@ -14,7 +14,18 @@ socket.on("recieve-message",message=>{
                 const chatListItem=document.createElement("li")
                 chatListItem.id=message.chat.id
                 chatListItem.className="list-group-item"
-                chatListItem.appendChild(document.createTextNode(`${message.user.name}: ${message.chat.message}`))
+                if(message.chat.type==="text")
+                {
+                    chatListItem.appendChild(document.createTextNode(`${message.user.name}: ${message.chat.message}`))
+                }
+                else
+                {
+                    const link = document.createElement('a');
+                    link.textContent = message.chat.filename;
+                    link.href = message.chat.message;
+                    link.download = message.chat.filename
+                    chatListItem.appendChild(link)
+                }
                 groupList.children[i].lastElementChild.appendChild(chatListItem)
                 break;
             }
@@ -89,6 +100,27 @@ async function addmsg(e)
             }
 
         }
+async function addfile(e)
+        {
+            e.preventDefault()
+            try{
+                const groupId=e.target.parentElement.parentElement.parentElement.id
+                const fileInput=document.getElementById(`file${groupId}`)
+                const file=fileInput.files[0]
+                const formData=new FormData()
+                formData.append('file',file)
+                formData.append('groupId',groupId)
+                const res=await axios.post("http://3.110.88.239:3000/chats/uploadfile",formData,{headers:{Authorization:token}})
+                socket.emit("send-message",res.data)
+                fileInput.value=""
+            }
+            catch(err)
+            {
+                document.getElementById("errmsg").textContent="Something Went Wrong"
+                setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
+            }
+
+        }        
 
     async function addmember(e)
         {
@@ -244,8 +276,19 @@ try{
         const chatListItem=document.createElement("li")
         chatListItem.id=chat.id
         chatListItem.className="list-group-item"
+        if(chat.type==="text")
+        {
         chatListItem.appendChild(document.createTextNode(`${chat.user.name}: ${chat.message}`))
-        chatList.appendChild(chatListItem)
+       }
+        else
+        {
+        const link = document.createElement('a');
+        link.textContent = fileInfo.filename;
+        link.href = fileInfo.url;
+        link.download = fileInfo.filename
+        chatListItem.appendChild(link)
+    }
+    chatList.appendChild(chatListItem)
     }
     e.target.parentElement.appendChild(chatList)
 

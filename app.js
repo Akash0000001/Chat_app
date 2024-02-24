@@ -34,7 +34,7 @@ Chats.belongsTo(Groups)
 Users.belongsToMany(Groups,{through:GroupMembers})
 Groups.belongsToMany(Users,{through:GroupMembers})
 
-sequelize.sync()
+sequelize.sync({force:true})
 .then((res)=>{
 const server=app.listen(3000,()=>console.log("server created"))
 const io=require("socket.io")(server) 
