@@ -14,7 +14,18 @@ socket.on("recieve-message",message=>{
                 const chatListItem=document.createElement("li")
                 chatListItem.id=message.chat.id
                 chatListItem.className="list-group-item"
-                chatListItem.appendChild(document.createTextNode(`${message.user.name}: ${message.chat.message}`))
+                if(message.chat.type==="text")
+                {
+                    chatListItem.appendChild(document.createTextNode(`${message.user.name}: ${message.chat.message}`))
+                }
+                else 
+                {
+                    const link = document.createElement('a');
+                    link.textContent =message.chat.filename;
+                    link.href = message.chat.message;
+                    link.download =message.chat.filename
+                    chatListItem.appendChild(link)
+                }
                 groupList.children[i].lastElementChild.appendChild(chatListItem)
                 break;
             }
@@ -70,8 +81,7 @@ function showgroupsonscreen(group)
     groupButton.appendChild(document.createTextNode("Open"))
     groupListItem.appendChild(groupButton)
     groupList.appendChild(groupListItem)
-}
-
+} 
 async function addmsg(e)
         {
             e.preventDefault()
@@ -90,6 +100,28 @@ async function addmsg(e)
 
         }
 
+async function addfile(e)
+        {
+            e.preventDefault()
+            try{
+                const groupId=e.target.parentElement.parentElement.parentElement.id
+                const fileInput=document.getElementById(`file${groupId}`)
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append("groupId",groupId)
+                const res=await axios.post("http://localhost:3000/chats/uploadfile",formData,{headers:{Authorization:token}})
+                socket.emit("send-message",res.data)
+                fileInput.value=""
+            }
+            catch(err)
+            {
+                document.getElementById("errmsg").textContent="Something Went Wrong"
+                setTimeout(()=>document.getElementById("errmsg").firstChild.remove(),10000)
+            }
+
+        }
+       
     async function addmember(e)
         {
             e.preventDefault()
@@ -221,10 +253,12 @@ try{
         const id=e.target.parentElement.id
         const token=localStorage.getItem("token")
         const res=await axios.get(`http://localhost:3000/chats?groupId=${id}&lastMessageId=-1`,{headers:{Authorization:token}})
+        console.log(res.data)
         const ul=document.createElement("ul")
         const li=document.createElement("li")
         li.className="list-group-item"
-        li.innerHTML=`<form id='formMsg${id}'onsubmit='addmsg(event)'><input type='text' placeholder='type a message' id='message${id}' required><input type='submit' value='Send Message'></form>`
+        li.innerHTML=`<form id='formMsg${id}'onsubmit='addmsg(event)'><input type='text' placeholder='type a message' id='message${id}' required><input type='submit' value='Send Message'></form><br>`
+        li.innerHTML=li.innerHTML+`<form id='formFile${id}'onsubmit='addfile(event)'><input type='file' placeholder='Select a file' id='file${id}' required><input type='submit' value='Send File'></form>`
         ul.appendChild(li)
         if (res.data.admin===true)
         {
@@ -243,7 +277,18 @@ try{
         const chatListItem=document.createElement("li")
         chatListItem.id=chat.id
         chatListItem.className="list-group-item"
+        if (chat.type==="text")
+        {
         chatListItem.appendChild(document.createTextNode(`${chat.user.name}: ${chat.message}`))
+        }
+        else 
+        {
+            const link = document.createElement('a');
+            link.textContent = chat.filename;
+            link.href = chat.message;
+            link.download = chat.filename
+            chatListItem.appendChild(link)
+        }
         chatList.appendChild(chatListItem)
     }
     e.target.parentElement.appendChild(chatList)

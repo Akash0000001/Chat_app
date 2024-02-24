@@ -17,7 +17,12 @@ const ioauthorize=require("./middlewares/ioauthorize")
 
 const app= express();
 app.use(cors())
-app.use(bodyparser.json({extended:false}))
+app.use(bodyparser.json({extended:true}))
+app.use(bodyparser.urlencoded({extended:true}))
+app.use((req,res,next)=>{
+    console.log(req.body)
+    next()
+})
 app.use("/user",userRoutes)
 app.use("/chats",chatRoutes)
 app.use("/groups",groupRoutes)
