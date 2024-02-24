@@ -59,7 +59,7 @@ catch(err)
 
 exports.addChat=async (req,res,next)=>{
     try{
-    const chat=await req.user.createChat({message:req.body.message,groupId:req.body.groupId})
+    const chat=await req.user.createChat({message:req.body.message,groupId:req.body.groupId,type:"text"})
     const user={name:req.user.name}
     res.status(201).json({chat,user})
     }
