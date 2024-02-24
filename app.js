@@ -37,7 +37,7 @@ Groups.belongsToMany(Users,{through:GroupMembers})
 
 sequelize.sync()
 .then((res)=>{
-app.listen(3000,()=>console.log("server created"))
+server.listen(3000,()=>console.log("server started"))
 const io=require("socket.io")(server) 
 const userSocket={}
     io.on("connection",socket=>{
