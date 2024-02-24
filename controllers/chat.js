@@ -72,7 +72,7 @@ exports.addChat=async (req,res,next)=>{
 exports.uploadFile=upload.single('file')
 exports.addFileUrltoDatabase=async (req,res,next)=>{
     try{
-        const chat=await req.user.createChat({message:req.file.location,groupId:req.body.groupId,type:"url"})
+        const chat=await req.user.createChat({message:req.file.location,groupId:req.body.groupId,type:"url",filename:req.file.originalname})
         const user={name:req.user.name}
         res.status(201).json({chat,user})
         }

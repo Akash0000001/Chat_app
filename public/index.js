@@ -285,7 +285,7 @@ try{
         const link = document.createElement('a');
         link.textContent = chat.filename;
         link.href = chat.message;
-        link.download = chile.filename
+        link.download = chat.filename
         chatListItem.appendChild(link)
     }
     chatList.appendChild(chatListItem)
