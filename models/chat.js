@@ -14,7 +14,7 @@ const Chats=sequelize.define("chats",{
     },
     type:{
         type:Sequelize.STRING,
-        allowNull:fals
+        allowNull:false
     },
     filename:Sequelize.STRING
 })
