@@ -3,7 +3,7 @@ const bodyparser= require("body-parser")
 const http=require("http")
 const path=require("path")
 const cors=require("cors")
-require("dotenv").config();
+ require("dotenv").config();
 const sequelize=require("./util/database")
 const userRoutes=require("./routes/user")
 const chatRoutes=require("./routes/chat")
@@ -12,6 +12,7 @@ const Users=require("./models/user")
 const Chats=require("./models/chat")
 const Groups=require("./models/group")
 const GroupMembers=require("./models/groupMember");
+const ArchivedChat=require("./models/archivedChat")
 const { error } = require("console");
 const ioauthorize=require("./middlewares/ioauthorize")
 
@@ -35,11 +36,13 @@ Groups.hasMany(Chats)
 Chats.belongsTo(Groups)
 
 Users.belongsToMany(Groups,{through:GroupMembers})
-Groups.belongsToMany(Users,{through:GroupMembers})
+
+
 
 sequelize.sync()
 .then((res)=>{
 server.listen(3000,()=>console.log("server created"))
+require("./cronJob")//Run CronJob
 const io=require("socket.io")(server) 
 const userSocket={}
     io.on("connection",socket=>{
